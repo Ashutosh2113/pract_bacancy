@@ -16,10 +16,15 @@ export function axiosGet(url) {
 }
 export function axiosGetCustomUrl(url) {
   return axios({
-    url:
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', //your url
+    url: url,
     method: 'GET',
     responseType: 'blob', // important
+    onDownloadProgress: function(progressEvent) {
+      console.log(
+        '===>Progress',
+        (progressEvent.loaded * 100) / progressEvent.total,
+      );
+    },
   })
     .then(data => {
       //console.log('===>', data);

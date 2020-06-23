@@ -45,10 +45,11 @@ export default class Home extends React.Component {
     // console.log('===>2', RNFetchBlob.fs);
   }
   getBlobFile = async () => {
+    // debugger;
     const data = await axiosGetCustomUrl(
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      'https://www.eurofound.europa.eu/sites/default/files/ef_publication/field_ef_document/ef1710en.pdf',
     );
-    //const blobData = new Blob([data]);
+    const blobData = new Blob([data]);
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -63,6 +64,7 @@ export default class Home extends React.Component {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('===>1');
         const fileReaderInstance = new FileReader();
         fileReaderInstance.readAsDataURL(data);
         fileReaderInstance.onload = async () => {
