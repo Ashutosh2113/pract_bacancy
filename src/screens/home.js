@@ -1,11 +1,21 @@
 import React from 'react';
-import {View, Text, FlatList, TextInput, ScrollView, Image} from 'react-native';
-import {axiosGet} from '../services/APICalls';
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  ScrollView,
+  Image,
+  PermissionsAndroid,
+} from 'react-native';
+import {axiosGet, axiosGetCustomUrl} from '../services/APICalls';
 import ListItem from './listItem';
 import ItemDetails from './detailsModel';
 import SearchFilter from '../components/searchFilter';
 import SortByFilter from './sortByFilter';
 import _ from 'lodash';
+import RNFetchBlob from 'rn-fetch-blob';
+import Pdf from 'react-native-pdf';
 
 //const x = [{id: '1'}, {id: '2'}];
 export default class Home extends React.Component {
@@ -23,11 +33,54 @@ export default class Home extends React.Component {
       appliedFilterQuery: '',
       sortBy: 1,
       sortByModel: false,
+      source: '',
     };
   }
   componentDidMount() {
-    this.sequentialCall();
+    //this.sequentialCall();
+    this.getBlobFile();
+    // const filePath = RNFetchBlob.fs.dirs.DownloadDir;
+    // const fileName = new Date().getTime();
+    // const fullPath = filePath + '/' + fileName + '.pdf';
+    // console.log('===>2', RNFetchBlob.fs);
   }
+  getBlobFile = async () => {
+    const data = await axiosGetCustomUrl(
+      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    );
+    //const blobData = new Blob([data]);
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'External storage permission',
+          message:
+            'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        const fileReaderInstance = new FileReader();
+        fileReaderInstance.readAsDataURL(data);
+        fileReaderInstance.onload = async () => {
+          let base64data = fileReaderInstance.result;
+          var Base64Code = base64data.split(';base64,');
+          const fs = RNFetchBlob.fs;
+          const filePath = fs.dirs.DownloadDir;
+          const fileName = new Date().getTime();
+          const fullPath = filePath + '/' + fileName + '.pdf';
+          await fs.createFile(fullPath, Base64Code[1], 'base64');
+        };
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
   sequentialCall = () => {
     let that = this;
     let callAPI = true;
@@ -119,8 +172,7 @@ export default class Home extends React.Component {
     return (
       <View style={{flex: 1}}>
         <View style={{flex: 1, alignSelf: 'flex-start', padding: 10}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {/* <View style={{flex: 1}}> */}
+          {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <SearchFilter
               appliedFilterQuery={this.state.appliedFilterQuery}
               value={this.state.fliterQuery}
@@ -138,9 +190,27 @@ export default class Home extends React.Component {
                 this.showSortByModel();
               }}
             />
-            {/* </View> */}
-          </View>
-          <View style={{flex: 1}}>
+          </View> */}
+          <Text>This is test</Text>
+          {/* {this.state.source.length > 0 && (
+            <Pdf
+              source={this.state.source}
+              onLoadComplete={(numberOfPages, filePath) => {
+                console.log(`number of pages: ${numberOfPages}`);
+              }}
+              onPageChanged={(page, numberOfPages) => {
+                console.log(`current page: ${page}`);
+              }}
+              onError={error => {
+                console.log(error);
+              }}
+              onPressLink={uri => {
+                console.log(`Link presse: ${uri}`);
+              }}
+              style={styles.pdf}
+            />
+          )} */}
+          {/* <View style={{flex: 1}}>
             <FlatList
               data={listData}
               renderItem={({item}) => (
@@ -168,9 +238,9 @@ export default class Home extends React.Component {
                 </View>
               }
             />
-          </View>
+          </View> */}
         </View>
-        <ItemDetails
+        {/* <ItemDetails
           isVisible={this.state.isVisible}
           closeModel={() => {
             this.closeModel();
@@ -183,7 +253,7 @@ export default class Home extends React.Component {
           setSortByFilter={value => {
             this.setState({sortBy: value, sortByModel: false});
           }}
-        />
+        /> */}
       </View>
     );
   }
