@@ -47,9 +47,13 @@ export default class Home extends React.Component {
   getBlobFile = async () => {
     // debugger;
     const data = await axiosGetCustomUrl(
-      'https://www.eurofound.europa.eu/sites/default/files/ef_publication/field_ef_document/ef1710en.pdf',
+      // 'https://www.eurofound.europa.eu/sites/default/files/ef_publication/field_ef_document/ef1710en.pdf',
+      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     );
-    const blobData = new Blob([data]);
+    // debugger;
+    // const blobData = new Blob([data]);
+    // let base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
+    // console.log('===>2', base64String);
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -64,7 +68,7 @@ export default class Home extends React.Component {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('===>1');
+        // console.log('===>1');
         const fileReaderInstance = new FileReader();
         fileReaderInstance.readAsDataURL(data);
         fileReaderInstance.onload = async () => {
@@ -76,6 +80,11 @@ export default class Home extends React.Component {
           const fullPath = filePath + '/' + fileName + '.pdf';
           await fs.createFile(fullPath, Base64Code[1], 'base64');
         };
+        // const fs = RNFetchBlob.fs;
+        // const filePath = fs.dirs.DownloadDir;
+        // const fileName = new Date().getTime();
+        // const fullPath = filePath + '/' + fileName + '.pdf';
+        // await fs.createFile(fullPath, base64String, 'base64');
       } else {
         console.log('Camera permission denied');
       }

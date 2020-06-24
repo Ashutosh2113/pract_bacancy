@@ -19,6 +19,9 @@ export function axiosGetCustomUrl(url) {
     url: url,
     method: 'GET',
     responseType: 'blob', // important
+    headers: {
+      Accept: 'application/pdf',
+    },
     onDownloadProgress: function(progressEvent) {
       console.log(
         '===>Progress',
